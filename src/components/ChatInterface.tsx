@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Message, MessageContent } from '@/types/chat';
@@ -7,7 +6,7 @@ import LoadingIndicator from './LoadingIndicator';
 import WelcomeScreen from './WelcomeScreen';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Image, Send } from 'lucide-react';
-import { sendMessageToOpenAI } from '@/lib/api';
+import { sendMessageToOpenAI } from '@/services/openaiService';
 
 interface ChatInterfaceProps {
   apiKey?: string;
@@ -29,26 +28,21 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
   const { register, handleSubmit, reset, watch } = useForm<{ message: string }>();
   const messageValue = watch('message', '');
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle form submission (text message)
   const onSubmit = async (data: { message: string }) => {
     if (!data.message.trim() && !selectedImage && !recordedAudio) return;
     
     const contentItems: MessageContent[] = [];
     
-    // Add text content if available
     if (data.message.trim()) {
       contentItems.push({
         type: 'text',
         text: data.message.trim()
       });
     }
-    
-    // Add image content if available
     if (selectedImage) {
       const imageUrl = imagePreview as string;
       contentItems.push({
@@ -56,8 +50,6 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
         image_url: imageUrl
       });
     }
-    
-    // Add audio content if available
     if (recordedAudio) {
       const audioUrl = URL.createObjectURL(recordedAudio);
       contentItems.push({
@@ -65,38 +57,28 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
         audio_url: audioUrl
       });
     }
-    
-    // Create user message
+
     const userMessage: Message = {
       role: 'user',
       content: contentItems
     };
-    
-    // Update messages state
     setMessages(prev => [...prev, userMessage]);
-    
-    // Reset form and attached media
     reset();
     setSelectedImage(null);
     setImagePreview(null);
     setRecordedAudio(null);
-    
-    // Send message to OpenAI API
+
     setIsLoading(true);
     try {
       const response = await sendMessageToOpenAI(messages.concat(userMessage));
-      
-      // Add assistant response to messages
       setMessages(prev => [...prev, response]);
     } catch (error) {
       console.error('Error sending message to OpenAI:', error);
-      // You could add error handling here
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -105,13 +87,11 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  // Clear selected image
   const clearImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
   };
 
-  // Start voice recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -126,7 +106,6 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         setRecordedAudio(audioBlob);
         
-        // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop());
       });
       
@@ -137,7 +116,6 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
     }
   };
 
-  // Stop voice recording
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
@@ -145,7 +123,6 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
     }
   };
 
-  // Clear recorded audio
   const clearAudio = () => {
     setRecordedAudio(null);
   };
@@ -174,7 +151,6 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
             <div ref={messagesEndRef} />
           </div>
           
-          {/* Media preview section */}
           {(imagePreview || recordedAudio) && (
             <div className="px-4 py-2 border-t border-gray-200">
               {imagePreview && (
@@ -207,14 +183,12 @@ const ChatInterface = ({ apiKey }: ChatInterfaceProps) => {
             </div>
           )}
           
-          {/* Loading indicator */}
           {isLoading && (
             <div className="border-t border-gray-200 p-3 bg-gray-50">
               <LoadingIndicator message="AI assistant is thinking..." />
             </div>
           )}
           
-          {/* Input section */}
           <div className="border-t border-gray-200 p-4">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-2">
               <div className="flex items-center space-x-2">
