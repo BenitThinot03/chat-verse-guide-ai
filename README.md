@@ -1,8 +1,25 @@
-# Welcome to your Lovable project
+# ChatVerse Guide AI - OpenAI Chat Application
+
+A fully featured React application to chat with OpenAI's assistant API, featuring:
+- Text messaging interface
+- Voice recording and messaging
+- Image upload capabilities
+- Modern responsive UI
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/0e216602-8d84-4c62-b58e-575d4cd1ddfa
+
+## How to Use
+1. Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Enter your API key when prompted in the application
+3. Start chatting with your AI travel guide!
+
+## Features
+- Chat with OpenAI's GPT-4o-mini model
+- Send text messages, voice recordings, and images
+- Travel-focused AI assistance
+- Responsive design for all devices
 
 ## How can I edit this code?
 
